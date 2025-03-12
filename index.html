@@ -283,12 +283,46 @@ $('#searchInput').on('input', function() {
     renderData(filtered);
 });
 
-        // 复制功能
-        function copySeed(seed) {
-            navigator.clipboard.writeText(seed)
-                .then(() => alert('已复制: ' + seed))
-                .catch(err => console.error('复制失败', err));
+// 复制功能（兼容移动端）
+function copySeed(seed) {
+    const temp = document.getElementById('copyTemp');
+    temp.value = seed;
+    temp.select();
+    temp.setSelectionRange(0, 99999); // 适配移动端
+    
+    try {
+        const result = document.execCommand('copy');
+        if (result) {
+            showCopyNotice('已复制: ' + seed);
+        } else {
+            showCopyNotice('复制失败，请长按选中文本');
         }
+    } catch (err) {
+        showCopyNotice('复制失败，请手动复制');
+    }
+}
+
+// 显示复制提示（替代alert）
+function showCopyNotice(msg) {
+    const notice = document.createElement('div');
+    notice.style = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        z-index: 9999;
+    `;
+    notice.textContent = msg;
+    document.body.appendChild(notice);
+    
+    setTimeout(() => {
+        document.body.removeChild(notice);
+    }, 1500);
+}
 
         // 清空搜索
         function clearSearch() {
@@ -298,6 +332,7 @@ $('#searchInput').on('input', function() {
 
         // 初始化加载全部数据
         $(document).ready(() => renderData(allData));
+<textarea id="copyTemp" style="position:fixed;left:-9999px;"></textarea>
     </script>
 </body>
 </html>
