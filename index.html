@@ -249,38 +249,45 @@
             return colors[type] || '666666';
         }
 
-        // 搜索功能
-        $('#searchInput').on('input', function() {
-            const inputVal = $(this).val().trim();
-            const condMap = { '咸':'salty', '辣':'spicy', '苦':'bitter', '甜':'sweet', '酸':'sour' };
-            let targetNum = null;
-            const conditions = {};
+    // 搜索功能（修复版）
+    $('#searchInput').on('input', function() {
+        const inputVal = $(this).val().trim();
+        const condMap = { '咸':'salty', '辣':'spicy', '苦':'bitter', '甜':'sweet', '酸':'sour' };
+        
+        // 解析条件
+        let targetTotal = null;
+        const conditions = {};
+        
+        // 匹配总料数（如：7料）
+        const totalMatch = inputVal.match(/(\d+)(?=\s*料|$)/);
+        if (totalMatch) targetTotal = parseInt(totalMatch, 10);
+        
+        // 匹配调味料条件（如：咸3 酸2）
+        const condRegex = /([咸辣苦甜酸])\s*(\d+)?/g;
+        let match;
+        while ((match = condRegex.exec(inputVal)) !== null) {
+            const [full, type, val] = match;
+            const prop = condMap[type];
+            if (!prop) continue;
+            
+            const value = val ? parseInt(val, 10) : 1;
+            conditions[prop] = value;
+        }
 
-            // 解析总料数
-            const totalMatch = inputVal.match(/(\d+)\s*料/);
-            if (totalMatch) targetNum = parseInt(totalMatch, 10);
-
-            // 解析具体条件
-            inputVal.split(/\s+/).forEach(term => {
-                const match = term.match(/([咸辣苦甜酸])(\d*)/);
-                if (match) {
-                    const prop = condMap[match];
-                    const value = match ? parseInt(match, 10) : 1;
-                    conditions[prop] = value;
-                }
-            });
-
-            // 过滤数据
-            const filtered = allData.filter(item => {
-                if (targetNum && item.total !== targetNum) return false;
-                for (const [prop, val] of Object.entries(conditions)) {
-                    if (item[prop] < val) return false;
-                }
-                return true;
-            });
-
-            renderData(filtered);
+        // 过滤数据
+        const filtered = allData.filter(item => {
+            // 总料数匹配
+            if (targetTotal !== null && item.total !== targetTotal) return false;
+            
+            // 调味料条件匹配
+            for (const [prop, min] of Object.entries(conditions)) {
+                if (item[prop] < min) return false;
+            }
+            return true;
         });
+
+        renderData(filtered);
+    });
 
         // 复选框事件
         $(document).on('change', '.seed-checkbox', function() {
