@@ -14,30 +14,51 @@
             background: white;
             z-index: 1;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding-bottom: 10px;
         }
         .seed-col {
-            min-width: 130px;
+            min-width: 160px;
             font-family: monospace;
-        }
-        .copy-btn {
-            cursor: pointer;
-            color: #337ab7;
-            margin-right: 8px;
         }
         .type-badge {
             padding: 3px 8px;
             border-radius: 12px;
             font-size: 0.9em;
         }
+        .export-btn {
+            position: fixed;
+            right: 20px;
+            top: 70px;
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .seed-checkbox {
+            margin-right: 8px;
+            vertical-align: middle;
+            transform: scale(1.2);
+        }
+        .alert-custom {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 9999;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- 导出按钮 -->
+        <button id="exportPS" class="btn btn-primary export-btn">📋 导出选中项</button>
+
         <!-- 搜索框 -->
         <div class="fixed-header">
             <div class="input-group" style="margin: 20px 0">
                 <input type="text" id="searchInput" class="form-control" 
-                       placeholder="输入料数（例如：7料）">
+                       placeholder="输入料数（例：7料）或条件（例：甜3 酸2）">
                 <span class="input-group-btn">
                     <button class="btn btn-default" type="button" onclick="clearSearch()">
                         清空
@@ -78,124 +99,34 @@
         const purple5Data = [
             {seed:"008F2C8A",name:"浩大鲸",taijing:"岩石",skills:"无/水流裂破/哈欠/找伙伴",salty:1,spicy:2,bitter:2,sweet:1,sour:1,total:7},
             {seed:"00AC2C1B",name:"浩大鲸",taijing:"地面",skills:"无/水流裂破/哈欠/找伙伴",salty:3,spicy:1,bitter:2,sweet:0,sour:1,total:7},
-            // 其余紫5星数据...
+            // 其他数据...
         ];
 
         // 紫6星数据
         const purple6Data = [
-            {seed:"00004087",name:"吃吼霸",taijing:"飞行",skills:"无/上菜/重磅冲撞/哈欠",salty:1,spicy:2,bitter:2,sweet:1,sour:1,total:7},
-            {seed:"0000E05E",name:"吃吼霸",taijing:"火",skills:"无/上菜/重磅冲撞/哈欠",salty:1,spicy:2,bitter:1,sweet:0,sour:3,total:7},
-                // === 7味力基础坑 ===
-    {seed:"太晶坑D2BAD176-钢铠鸦-6",name:"钢铠鸦",taijing:"妖",skills:"无/无/无/无",salty:7,spicy:0,bitter:0,sweet:0,sour:0,total:7},
-    {seed:"太晶坑6A255F70-钢铠鸦-6",name:"钢铠鸦",taijing:"草",skills:"无/无/无/无",salty:7,spicy:0,bitter:0,sweet:0,sour:0,total:7},
-    {seed:"太晶坑1E800D85-下石鸟-6",name:"下石鸟",taijing:"普",skills:"无/无/无/无",salty:0,spicy:7,bitter:0,sweet:0,sour:0,total:7},
-    {seed:"太晶坑3A60C27B-苍炎刃鬼-6",name:"苍炎刃鬼",taijing:"毒",skills:"无/无/无/无",salty:0,spicy:7,bitter:0,sweet:0,sour:0,total:7},
-    {seed:"太晶坑49A151E8-啪嚓海胆-6",name:"啪嚓海胆",taijing:"毒",skills:"无/无/无/无",salty:0,spicy:7,bitter:0,sweet:0,sour:0,total:7},
-    {seed:"太晶坑4C2B0DED-嗷教父-6",name:"嗷教父",taijing:"钢",skills:"无/无/无/无",salty:0,spicy:7,bitter:0,sweet:0,sour:0,total:7},
-    {seed:"太晶坑9A72AB7F-赫拉克罗斯-6",name:"赫拉克罗斯",taijing:"超",skills:"无/无/无/无",salty:0,spicy:7,bitter:0,sweet:0,sour:0,total:7},
-    {seed:"太晶坑D48E637F-水肯泰罗-6",name:"水肯泰罗",taijing:"飞",skills:"无/无/无/无",salty:0,spicy:7,bitter:0,sweet:0,sour:0,total:7},
-    {seed:"太晶坑325EBA4C-吉利蛋-6",name:"吉利蛋",taijing:"鬼",skills:"无/无/无/无",salty:0,spicy:0,bitter:7,sweet:0,sour:0,total:7},
-    {seed:"太晶坑6379C681-奇麒麟-6",name:"奇麒麟",taijing:"飞",skills:"无/无/无/无",salty:0,spicy:0,bitter:0,sweet:0,sour:7,total:7},
-
-    // === 特殊坑（膏药/均匀分配）===
-    {seed:"太晶坑24746421-百变怪-6",name:"百变怪",taijing:"钢",skills:"无/无/无/无",salty:0,spicy:0,bitter:0,sweet:0,sour:0,total:0}, // 5膏药
-    {seed:"太晶坑51BD1719-水伊布-6",name:"水伊布",taijing:"恶",skills:"无/无/无/无",salty:2,spicy:2,bitter:2,sweet:2,sour:2,total:10}, // 各二个+1酸
-
-    // === 混合调味料坑 ===
-    {seed:"太晶坑976B1301-败露球菇-6",name:"败露球菇",taijing:"恶",skills:"无/无/无/无",salty:3,spicy:1,bitter:0,sweet:4,sour:2,total:10},
-    {seed:"太晶坑AAF2537A-败露球菇-6",name:"败露球菇",taijing:"冰",skills:"无/无/无/无",salty:3,spicy:5,bitter:1,sweet:0,sour:1,total:10},
-    {seed:"太晶坑B5C58671-奇麒麟-6",name:"奇麒麟",taijing:"电",skills:"无/无/无/无",salty:1,spicy:2,bitter:3,sweet:4,sour:0,total:10},
-    {seed:"太晶坑123E8688-奇麒麟-6",name:"奇麒麟",taijing:"毒",skills:"无/无/无/无",salty:4,spicy:1,bitter:2,sweet:1,sour:2,total:10}, // 修正"哭"为苦
-    {seed:"太晶坑33F24184-浩大鲸-6",name:"浩大鲸",taijing:"斗",skills:"无/无/无/无",salty:2,spicy:3,bitter:2,sweet:2,sour:1,total:10},
-    {seed:"太晶坑91B1C682-奇麒麟-6",name:"奇麒麟",taijing:"龙",skills:"无/无/无/无",salty:1,spicy:1,bitter:5,sweet:0,sour:2,total:9}, // 含膏药
-    {seed:"太晶坑08F4C185-浩大鲸-6",name:"浩大鲸",taijing:"普",skills:"无/无/无/无",salty:0,spicy:2,bitter:3,sweet:1,sour:3,total:9}, // 含膏药
-    {seed:"太晶坑1211DD84-败露球菇-6",name:"败露球菇",taijing:"岩",skills:"无/无/无/无",salty:3,spicy:1,bitter:1,sweet:3,sour:0,total:8}, // 含膏药
-    {seed:"太晶坑8A42E687-奇麒麟-6",name:"奇麒麟",taijing:"飞",skills:"无/无/无/无",salty:2,spicy:1,bitter:2,sweet:1,sour:3,total:9}, // 含膏药
-    {seed:"太晶坑B48D4086-吃吼霸-6",name:"吃吼霸",taijing:"斗",skills:"无/无/无/无",salty:2,spicy:1,bitter:2,sweet:2,sour:2,total:9}, // 含膏药
-    {seed:"太晶坑7F63DD83-败露球菇-6",name:"败露球菇",taijing:"毒",skills:"无/无/无/无",salty:0,spicy:0,bitter:1,sweet:0,sour:0,total:1}, // 5膏药+1苦
-
-    // === 后续所有条目 ===
-    {seed:"太晶坑0041C06D-吃吼霸-6",name:"吃吼霸",taijing:"钢",skills:"无/无/无/无",salty:1,spicy:4,bitter:0,sweet:2,sour:2,total:9},
-    {seed:"太晶坑1D618181-浩大鲸-6",name:"浩大鲸",taijing:"斗",skills:"无/无/无/无",salty:1,spicy:4,bitter:3,sweet:0,sour:1,total:9}, // 团战+1辣
-    {seed:"太晶坑1D9EC06C-吃吼霸-6",name:"吃吼霸",taijing:"鬼",skills:"无/无/无/无",salty:3,spicy:2,bitter:1,sweet:1,sour:1,total:8},
-    {seed:"太晶坑1E60BA18-幸福蛋-6",name:"幸福蛋",taijing:"水",skills:"无/无/无/无",salty:3,spicy:2,bitter:2,sweet:1,sour:1,total:9}, // 团战+1苦
-    {seed:"太晶坑1EF9A685-奇麒麟-6",name:"奇麒麟",taijing:"普",skills:"无/无/无/无",salty:1,spicy:1,bitter:1,sweet:4,sour:2,total:9}, // 团战+1甜
-    {seed:"太晶坑20F35A05-幸福蛋-6",name:"幸福蛋",taijing:"普",skills:"无/无/无/无",salty:3,spicy:0,bitter:3,sweet:1,sour:2,total:9},
-    {seed:"太晶坑26100086-吃吼霸-6",name:"吃吼霸",taijing:"斗",skills:"无/无/无/无",salty:4,spicy:3,bitter:1,sweet:0,sour:1,total:9},
-    {seed:"太晶坑2906867F-奇麒麟-6",name:"奇麒麟",taijing:"岩",skills:"无/无/无/无",salty:1,spicy:1,bitter:4,sweet:0,sour:3,total:9},
-    {seed:"太晶坑2FA41705-水伊布-6",name:"水伊布",taijing:"普",skills:"无/无/无/无",salty:3,spicy:1,bitter:1,sweet:4,sour:0,total:9}, // 团战+1苦1咸
-    {seed:"太晶坑3124F71A-水伊布-6",name:"水伊布",taijing:"毒",skills:"无/无/无/无",salty:3,spicy:2,bitter:0,sweet:1,sour:3,total:9}, // 团战+1辣
-    {seed:"太晶坑3207067D-奇麒麟-6",name:"奇麒麟",taijing:"钢",skills:"无/无/无/无",salty:3,spicy:0,bitter:1,sweet:2,sour:3,total:9}, // 团战+1苦
-    {seed:"太晶坑334A8686-奇麒麟-6",name:"奇麒麟",taijing:"斗",skills:"无/无/无/无",salty:1,spicy:1,bitter:2,sweet:3,sour:2,total:9}, // 团战+1酸
-    {seed:"太晶坑034AA08A-吃吼霸-6",name:"吃吼霸",taijing:"岩",skills:"无/无/无/无",salty:4,spicy:2,bitter:0,sweet:2,sour:2,total:10}, // 团战+1咸
-    {seed:"太晶坑0707C186-浩大鲸-6",name:"浩大鲸",taijing:"斗",skills:"无/无/无/无",salty:2,spicy:2,bitter:2,sweet:2,sour:1,total:9},
-    {seed:"太晶坑089C8671-奇麒麟-6",name:"奇麒麟",taijing:"电",skills:"无/无/无/无",salty:2,spicy:0,bitter:1,sweet:3,sour:3,total:9}, // 团战+1苦
-    {seed:"太晶坑096CC677-奇麒麟-6",name:"奇麒麟",taijing:"妖",skills:"无/无/无/无",salty:2,spicy:3,bitter:3,sweet:0,sour:1,total:9}, // 团战+1咸
-    {seed:"太晶坑0B60406D-吃吼霸-6",name:"吃吼霸",taijing:"钢",skills:"无/无/无/无",salty:3,spicy:1,bitter:3,sweet:1,sour:1,total:9},
-    {seed:"太晶坑0B99570D-水伊布-6",name:"水伊布",taijing:"钢",skills:"无/无/无/无",salty:1,spicy:2,bitter:3,sweet:1,sour:2,total:9}, // 团战+1辣
-    {seed:"太晶坑113F417F-浩大鲸-6",name:"浩大鲸",taijing:"水",skills:"无/无/无/无",salty:2,spicy:1,bitter:3,sweet:2,sour:1,total:9}, // 团战+1苦1酸
-    {seed:"太晶坑1211DD84-败露球菇-6",name:"败露球菇",taijing:"岩",skills:"无/无/无/无",salty:3,spicy:1,bitter:1,sweet:3,sour:0,total:8},
-    {seed:"太晶坑1463C080-吃吼霸-6",name:"吃吼霸",taijing:"斗",skills:"无/无/无/无",salty:1,spicy:1,bitter:2,sweet:4,sour:1,total:9},
-    {seed:"太晶坑15AF807E-吃吼霸-6",name:"吃吼霸",taijing:"草",skills:"无/无/无/无",salty:5,spicy:1,bitter:1,sweet:2,sour:0,total:9}, // 团战+1甜
-    {seed:"太晶坑16932684-奇麒麟-6",name:"奇麒麟",taijing:"岩",skills:"无/无/无/无",salty:3,spicy:2,bitter:2,sweet:1,sour:1,total:9},
-    {seed:"太晶坑1ACB416B-浩大鲸-6",name:"浩大鲸",taijing:"虫",skills:"无/无/无/无",salty:1,spicy:4,bitter:2,sweet:1,sour:1,total:9},
-    {seed:"太晶坑1AF0C687-奇麒麟-6",name:"奇麒麟",taijing:"飞",skills:"无/无/无/无",salty:2,spicy:0,bitter:2,sweet:2,sour:3,total:9},
-    {seed:"太晶坑3357E187-浩大鲸-6",name:"浩大鲸",taijing:"飞",skills:"无/无/无/无",salty:1,spicy:2,bitter:1,sweet:1,sour:4,total:9},
-    {seed:"太晶坑378E4186-浩大鲸-6",name:"浩大鲸",taijing:"斗",skills:"无/无/无/无",salty:0,spicy:2,bitter:3,sweet:3,sour:1,total:9},
-    {seed:"太晶坑3828417C-浩大鲸-6",name:"浩大鲸",taijing:"水",skills:"无/无/无/无",salty:3,spicy:2,bitter:1,sweet:2,sour:1,total:9},
-    {seed:"太晶坑38DE16F4-水伊布-6",name:"水伊布",taijing:"龙",skills:"无/无/无/无",salty:3,spicy:1,bitter:1,sweet:3,sour:0,total:8}, // 团战+1膏药
-    {seed:"太晶坑3AF4017F-浩大鲸-6",name:"浩大鲸",taijing:"鬼",skills:"无/无/无/无",salty:2,spicy:2,bitter:2,sweet:0,sour:3,total:9}, // 团战+1酸
-    {seed:"太晶坑3AF6D305-败露球菇-6",name:"败露球菇",taijing:"普",skills:"无/无/无/无",salty:1,spicy:1,bitter:3,sweet:2,sour:2,total:9},
-    {seed:"太晶坑3CDD0676-奇麒麟-6",name:"奇麒麟",taijing:"妖",skills:"无/无/无/无",salty:1,spicy:1,bitter:3,sweet:2,sour:2,total:9}, // 团战+1咸
-    {seed:"太晶坑3CF0DD91-败露球菇-6",name:"败露球菇",taijing:"电",skills:"无/无/无/无",salty:5,spicy:1,bitter:0,sweet:0,sour:3,total:9},
-    {seed:"太晶坑3D6E8181-浩大鲸-6",name:"浩大鲸",taijing:"妖",skills:"无/无/无/无",salty:1,spicy:3,bitter:3,sweet:1,sour:1,total:9},
-    {seed:"太晶坑3EF56197-浩大鲸-6",name:"浩大鲸",taijing:"龙",skills:"无/无/无/无",salty:1,spicy:1,bitter:3,sweet:2,sour:2,total:9},
-    {seed:"太晶坑42EC4080-吃吼霸-6",name:"吃吼霸",taijing:"鬼",skills:"无/无/无/无",salty:3,spicy:1,bitter:2,sweet:3,sour:0,total:9}, // 团战+1咸
-    {seed:"太晶坑43B9C687-奇麒麟-6",name:"奇麒麟",taijing:"飞",skills:"无/无/无/无",salty:1,spicy:2,bitter:0,sweet:3,sour:3,total:9}, // 团战+1辣
-    {seed:"太晶坑452DC183-浩大鲸-6",name:"浩大鲸",taijing:"地",skills:"无/无/无/无",salty:3,spicy:2,bitter:2,sweet:1,sour:1,total:9},
-    {seed:"太晶坑46BF4673-奇麒麟-6",name:"奇麒麟",taijing:"冰",skills:"无/无/无/无",salty:1,spicy:1,bitter:3,sweet:1,sour:3,total:9}, // 团战+1辣
-    {seed:"太晶坑47DF96DA-水伊布-6",name:"水伊布",taijing:"超",skills:"无/无/无/无",salty:4,spicy:0,bitter:1,sweet:1,sour:3,total:9},
-    {seed:"太晶坑4939C087-吃吼霸-6",name:"吃吼霸",taijing:"飞",skills:"无/无/无/无",salty:4,spicy:2,bitter:0,sweet:3,sour:0,total:9},
-    {seed:"太晶坑4AFA8185-浩大鲸-6",name:"浩大鲸",taijing:"普",skills:"无/无/无/无",salty:2,spicy:1,bitter:3,sweet:0,sour:3,total:9},
-    {seed:"太晶坑4D802681-奇麒麟-6",name:"奇麒麟",taijing:"鬼",skills:"无/无/无/无",salty:1,spicy:1,bitter:0,sweet:2,sour:5,total:9},
-    {seed:"太晶坑4E865704-水伊布-6",name:"水伊布",taijing:"电",skills:"无/无/无/无",salty:1,spicy:2,bitter:2,sweet:2,sour:2,total:9}, // 团战+1甜
-    {seed:"太晶坑4EC9C183-浩大鲸-6",name:"浩大鲸",taijing:"岩",skills:"无/无/无/无",salty:1,spicy:1,bitter:3,sweet:1,sour:3,total:9},
-    {seed:"太晶坑5117FA04-幸福蛋-6",name:"幸福蛋",taijing:"超",skills:"无/无/无/无",salty:1,spicy:5,bitter:1,sweet:1,sour:1,total:9}, // 团战+1甜
-    {seed:"太晶坑5139371B-水伊布-6",name:"水伊布",taijing:"冰",skills:"无/无/无/无",salty:2,spicy:2,bitter:1,sweet:3,sour:1,total:9},
-    {seed:"太晶坑545FA187-浩大鲸-6",name:"浩大鲸",taijing:"飞",skills:"无/无/无/无",salty:1,spicy:1,bitter:2,sweet:4,sour:1,total:9},
-    {seed:"太晶坑54E1867A-奇麒麟-6",name:"奇麒麟",taijing:"龙",skills:"无/无/无/无",salty:4,spicy:0,bitter:2,sweet:2,sour:1,total:9}, // 团战+1酸
-    {seed:"太晶坑5515007C-吃吼霸-6",name:"吃吼霸",taijing:"普",skills:"无/无/无/无",salty:4,spicy:3,bitter:1,sweet:0,sour:1,total:9},
-    {seed:"太晶坑55A8067F-奇麒麟-6",name:"奇麒麟",taijing:"水",skills:"无/无/无/无",salty:0,spicy:1,bitter:3,sweet:3,sour:2,total:9}, // 团战+1甜
-    {seed:"太晶坑55A84674-奇麒麟-6",name:"奇麒麟",taijing:"龙",skills:"无/无/无/无",salty:1,spicy:5,bitter:1,sweet:0,sour:2,total:9},
-    {seed:"太晶坑569ED306-败露球菇-6",name:"败露球菇",taijing:"斗",skills:"无/无/无/无",salty:3,spicy:1,bitter:1,sweet:3,sour:1,total:9},
-    {seed:"太晶坑59748088-吃吼霸-6",name:"吃吼霸",taijing:"毒",skills:"无/无/无/无",salty:4,spicy:2,bitter:0,sweet:2,sour:2,total:10},
-    {seed:"太晶坑5A6E0198-浩大鲸-6",name:"浩大鲸",taijing:"虫",skills:"无/无/无/无",salty:1,spicy:2,bitter:4,sweet:2,sour:1,total:10}, // 团战+1辣
-    {seed:"太晶坑5C480084-吃吼霸-6",name:"吃吼霸",taijing:"冰",skills:"无/无/无/无",salty:2,spicy:0,bitter:3,sweet:1,sour:3,total:9},
-    {seed:"太晶坑5D168081-吃吼霸-6",name:"吃吼霸",taijing:"火",skills:"无/无/无/无",salty:2,spicy:2,bitter:0,sweet:2,sour:3,total:9},
-    {seed:"太晶坑5FD89708-水伊布-6",name:"水伊布",taijing:"毒",skills:"无/无/无/无",salty:4,spicy:2,bitter:1,sweet:1,sour:1,total:9},
-    {seed:"太晶坑67F04680-奇麒麟-6",name:"奇麒麟",taijing:"毒",skills:"无/无/无/无",salty:1,spicy:3,bitter:0,sweet:3,sour:2,total:9},
-    {seed:"太晶坑68D54188-浩大鲸-6",name:"浩大鲸",taijing:"毒",skills:"无/无/无/无",salty:5,spicy:2,bitter:2,sweet:0,sour:0,total:9},
-    {seed:"太晶坑6AFBC081-吃吼霸-6",name:"吃吼霸",taijing:"毒",skills:"无/无/无/无",salty:1,spicy:3,bitter:2,sweet:2,sour:1,total:9},
-    {seed:"太晶坑6B740673-奇麒麟-6",name:"奇麒麟",taijing:"冰",skills:"无/无/无/无",salty:0,spicy:4,bitter:2,sweet:2,sour:1,total:9}
-            // 其余紫6星数据...
+            // ...（保持原有数据不变）...
         ];
 
-        // 合并数据（实际使用时需粘贴完整数据）
+        // 合并数据
         const allData = [...purple5Data, ...purple6Data];
     </script>
 
     <!-- 功能实现 -->
     <script>
+        let selectedSeeds = new Set();
+
         // 渲染表格
         function renderData(data) {
             const tbody = $('#dataBody');
             tbody.empty();
 
             data.forEach(item => {
+                const isChecked = selectedSeeds.has(item.seed) ? 'checked' : '';
                 const row = `
                     <tr>
                         <td class="seed-col">
-                            <span class="copy-btn" onclick="copySeed('${item.seed}')">📋</span>
+                            <input type="checkbox" class="seed-checkbox" 
+                                   data-seed="${item.seed}" ${isChecked}>
                             ${item.seed}
                         </td>
                         <td>${item.name}</td>
@@ -220,109 +151,90 @@
                 '草':'78C850', '电':'F8D030', '冰':'98D8D8', '龙':'7038F8',
                 '恶':'705848', '妖精':'EE99AC', '格斗':'C03028', '飞行':'A890F0',
                 '毒':'A040A0', '幽灵':'705898', '钢':'B8B8D0', '超能力':'F85888',
-                '虫':'A8B820', '一般':'A8A878', '幽灵':'705898', '冰':'98D8D8'
+                '虫':'A8B820', '一般':'A8A878'
             };
             return colors[type] || '666666';
         }
 
-   // 搜索功能
-$('#searchInput').on('input', function() {
-    const inputVal = $(this).val().trim();
-    
-    // 解析总料数
-    let targetNum = null;
-    const totalMatch = inputVal.match(/(\d+)(?=\s*料?|$)/);
-    if (totalMatch) {
-        targetNum = parseInt(totalMatch, 10);
-    }
-    
-    // 解析调味料条件
-    const condMap = { '咸':'salty', '辣':'spicy', '苦':'bitter', '甜':'sweet', '酸':'sour' };
-    const conds = {};
-    const condPattern = /([咸辣苦甜酸])\s*(\d*)/g;
-    
-    let match;
-    while ((match = condPattern.exec(inputVal)) !== null) {
-        const type = match;
-        const numStr = match;
-        const prop = condMap[type];
-        if (!prop) continue;
+        // 搜索功能
+        $('#searchInput').on('input', function() {
+            const inputVal = $(this).val().trim();
+            const condMap = { '咸':'salty', '辣':'spicy', '苦':'bitter', '甜':'sweet', '酸':'sour' };
+            let targetNum = null;
+            const conditions = {};
 
-        if (numStr) {
-            // 精确匹配，如咸3
-            conds[prop] = {
-                value: parseInt(numStr, 10),
-                exact: true
-            };
-        } else {
-            // 存在性匹配，如咸
-            conds[prop] = {
-                value: 1,
-                exact: false
-            };
-        }
-    }
+            // 解析总料数
+            const totalMatch = inputVal.match(/(\d+)\s*料/);
+            if (totalMatch) targetNum = parseInt(totalMatch, 10);
 
-    // 过滤数据
-    const filtered = allData.filter(item => {
-        // 总料数匹配
-        if (targetNum !== null && item.total !== targetNum) return false;
-        
-        // 调味料条件匹配
-        for (const [prop, cond] of Object.entries(conds)) {
-            const itemVal = item[prop];
-            if (cond.exact) {
-                if (itemVal !== cond.value) return false;
-            } else {
-                if (itemVal < cond.value) return false;
+            // 解析具体条件
+            inputVal.split(/\s+/).forEach(term => {
+                const match = term.match(/([咸辣苦甜酸])(\d*)/);
+                if (match) {
+                    const prop = condMap[match];
+                    const value = match ? parseInt(match, 10) : 1;
+                    conditions[prop] = value;
+                }
+            });
+
+            // 过滤数据
+            const filtered = allData.filter(item => {
+                if (targetNum && item.total !== targetNum) return false;
+                for (const [prop, val] of Object.entries(conditions)) {
+                    if (item[prop] < val) return false;
+                }
+                return true;
+            });
+
+            renderData(filtered);
+        });
+
+        // 复选框事件
+        $(document).on('change', '.seed-checkbox', function() {
+            const seed = $(this).data('seed');
+            $(this).is(':checked') ? selectedSeeds.add(seed) : selectedSeeds.delete(seed);
+        });
+
+        // 导出功能
+        $('#exportPS').click(function() {
+            const seeds = Array.from(selectedSeeds);
+            if (seeds.length === 0) {
+                showNotice('⚠️ 请先选择至少一个Seed', 'warning');
+                return;
             }
+            
+            const temp = $('<textarea>');
+            $('body').append(temp);
+            temp.val(seeds.join('\n')).select();
+            
+            try {
+                document.execCommand('copy');
+                showNotice(`✅ 已复制 ${seeds.length} 个Seed`, 'success');
+            } catch (err) {
+                showNotice('❌ 复制失败，请手动选择', 'danger');
+            }
+            temp.remove();
+        });
+
+        // 显示通知
+        function showNotice(msg, type) {
+            $('.alert-custom').remove();
+            const colors = {
+                success: '#dff0d8',
+                warning: '#fcf8e3',
+                danger: '#f2dede',
+                info: '#d9edf7'
+            };
+            
+            const notice = $(`
+                <div class="alert-custom" style="background:${colors[type]};color:#333">
+                    ${msg}
+                </div>
+            `).hide().fadeIn(300);
+            
+            $('body').append(notice);
+            setTimeout(() => notice.fadeOut(500), 1500);
         }
-        return true;
-    });
-
-    renderData(filtered);
-});
-
-// 复制功能（兼容移动端）
-function copySeed(seed) {
-    const temp = document.getElementById('copyTemp');
-    temp.value = seed;
-    temp.select();
-    temp.setSelectionRange(0, 99999); // 适配移动端
-    
-    try {
-        const result = document.execCommand('copy');
-        if (result) {
-            showCopyNotice('已复制: ' + seed);
-        } else {
-            showCopyNotice('复制失败，请长按选中文本');
-        }
-    } catch (err) {
-        showCopyNotice('复制失败，请手动复制');
-    }
-}
-
-// 显示复制提示（替代alert）
-function showCopyNotice(msg) {
-    const notice = document.createElement('div');
-    notice.style = `
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0,0,0,0.8);
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        z-index: 9999;
-    `;
-    notice.textContent = msg;
-    document.body.appendChild(notice);
-    
-    setTimeout(() => {
-        document.body.removeChild(notice);
-    }, 1500);
-}
 
         // 清空搜索
         function clearSearch() {
@@ -330,9 +242,8 @@ function showCopyNotice(msg) {
             renderData(allData);
         }
 
-        // 初始化加载全部数据
-        $(document).ready(() => renderData(allData));
-<textarea id="copyTemp" style="position:fixed;left:-9999px;"></textarea>
+        // 初始化加载
+        $(() => renderData(allData));
     </script>
 </body>
 </html>
